@@ -4,6 +4,8 @@ namespace mglaman\DrupalOrgCli;
 
 use Composer\InstalledVersions;
 use Symfony\Component\Console\Application as ParentApplication;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
 
 class Application extends ParentApplication
 {
@@ -23,6 +25,18 @@ class Application extends ParentApplication
         $this->addCommands($this->getCommands());
     }
 
+    protected function getDefaultInputDefinition(): InputDefinition
+    {
+        $definition = parent::getDefaultInputDefinition();
+        $definition->addOption(new InputOption(
+            'no-cache',
+            null,
+            InputOption::VALUE_NONE,
+            'Bypass Drupal.org HTTP caching and fetch a fresh response.'
+        ));
+        return $definition;
+    }
+
     /**
      * @return \Symfony\Component\Console\Command\Command[]
      */
@@ -34,9 +48,11 @@ class Application extends ParentApplication
         }
 
         $commands[] = new \SelfUpdate\SelfUpdateCommand(
-            $this->getName(),
-            $this->getVersion(),
-            'mglaman/drupalorg-cli'
+            new \SelfUpdate\SelfUpdateManager(
+                $this->getName(),
+                $this->getVersion(),
+                'mglaman/drupalorg-cli'
+            )
         );
         $commands[] = new Command\Completion();
         $commands[] = new Command\Issue\Link();

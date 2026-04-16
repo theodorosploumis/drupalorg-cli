@@ -115,8 +115,9 @@ drupalorg mr:logs 'project/drupal!708'
 
 ```bash
 # List open issues for a project
-# type: all (default) or rtbc; --core defaults to 8.x; --limit defaults to 10
-drupalorg project:issues [project] [type] --format=llm
+# type: all (default), rtbc, or review; --core defaults to 8.x; --limit defaults to 10
+# --category filters by issue type: bug, task, feature, support, plan (omit for all categories)
+drupalorg project:issues [project] [type] [--category=bug|task|feature|support|plan] --format=llm
 
 # Search issues for a project by title keyword
 # project is optional; auto-detected from git remote if omitted
@@ -154,10 +155,20 @@ drupalorg maintainer:release-notes <ref1> [ref2] [--format=json|md|html]
 ```bash
 # Install the drupalorg-cli agent skill into .claude/skills/drupalorg-cli/
 drupalorg skill:install
-
-# Clear the local API cache
-drupalorg cache:clear
 ```
+
+## Cache Bypass
+
+Drupal.org uses HTTP caching (CDN/Varnish). If you need fresh data — e.g. after a
+new comment was posted — pass `--no-cache` to any command:
+
+```bash
+drupalorg issue:show <nid> --with-comments --format=llm --no-cache
+drupalorg mr:list [nid] --format=llm --no-cache
+```
+
+`--no-cache` sends `Cache-Control: no-cache, no-store, must-revalidate` and
+`Pragma: no-cache` headers so the upstream CDN returns a fresh response.
 
 ## Error Handling
 
